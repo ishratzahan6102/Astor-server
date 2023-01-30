@@ -101,7 +101,6 @@ async function run() {
             console.log(bookings)
         });
 
-
         app.delete('/bookings/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
@@ -124,7 +123,11 @@ async function run() {
             }
             const result = await bookingsCollection.insertOne(booking);
             res.send(result);
+
         });
+
+
+      
 
 
         // post users
@@ -286,21 +289,36 @@ async function run() {
             res.send(result);
         })
 
+
         // add to wishlist
-        app.get('/wishList', verifyJWT, async (req, res) => {
-            const query = {};
-            const result = await wishList.find(query).toArray();
-            res.send(result);
-
+        app.get('/wishlist', async (req, res) => {
+            const email = req.query.email;
+            const query = {
+                email: email
+            };
+            const bookings = await wishList.find(query).toArray();
+            res.send(bookings);
+            console.log(bookings)
+        
         })
-
-        app.post('/wishList', verifyJWT, async (req, res) => {
-            const item = req.body;
-            const result = await wishList.insertOne(item);
+        app.post('/wishList', async (req, res) => {
+            const wishlist = req.body;
+            
+            const query = {
+                itemName: wishlist.itemName,
+                email: wishlist.email,
+            }
+            const alreadyBooked = await wishList.find(query).toArray();
+            if (alreadyBooked.length) {
+                const message = `You already have wishlisted ${wishlist.itemName}`
+                return res.send({ acknowledged: false, message })
+            }
+            const result = await wishList.insertOne(wishlist);
             res.send(result);
             console.log(result)
         });
-        app.delete('/wishList/:id', verifyJWT, async (req, res) => {
+
+        app.delete('/wishList/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
             const result = await wishList.deleteOne(filter);
@@ -309,8 +327,6 @@ async function run() {
     }
 
     finally {
-
-
 
     }
 }
