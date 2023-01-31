@@ -92,7 +92,6 @@ async function run() {
             const query = { email: email };
             const bookings = await bookingsCollection.find(query).toArray();
             res.send(bookings);
-            console.log(bookings)
         });
 
         app.delete('/bookings/:id', async (req, res) => {
@@ -237,7 +236,6 @@ async function run() {
             const item = req.body;
             const result = await itemsCollection.insertOne(item);
             res.send(result);
-            console.log(result)
         })
 
         app.delete('/addItems/:id', verifyJWT, async (req, res) => {
@@ -277,7 +275,7 @@ async function run() {
 
         // })
 
-        app.get('/wishlist' , async(req, res) => {
+        app.get('/wishList' , async(req, res) => {
             const email = req.query.email;
             const query = { email : email};
             const result = await wishList.find(query).toArray();
@@ -301,7 +299,7 @@ async function run() {
         //     console.log(result)
         // });
 
-        app.post('/wishlist' , async(req, res) => {
+        app.post('/wishList' , async(req, res) => {
             const wishlist = req.body ;
             const query = {
                 itemName: wishlist.itemName,
@@ -324,7 +322,7 @@ async function run() {
         //     res.send(result);
         // })
 
-        app.delete('/wishlist/:id' , async(req, res) => {
+        app.delete('/wishList/:id' , async(req, res) => {
             const id = req.params.id;
             const filter = {_id: ObjectId(id)}
             const result = await wishList.deleteOne(filter);
