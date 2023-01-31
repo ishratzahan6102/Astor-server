@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion, ObjectId,  } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId, } = require('mongodb');
 const port = process.env.PORT || 5000
 // webtoken 
 
@@ -14,7 +14,6 @@ const app = express()
 // middle ware
 app.use(cors())
 app.use(express.json())
-
 
 
 app.get('/', (req, res) => {
@@ -75,15 +74,11 @@ async function run() {
             next()
         }
 
-
-
-
         app.get('/allPhones', async (req, res) => {
             const query = {}
             const result = await allPhones.find(query).toArray()
             res.send(result)
         })
-
 
         app.get('/category/:brand', async (req, res) => {
             const brand = req.params.brand;
@@ -91,7 +86,6 @@ async function run() {
             const result = await allData.find(query).toArray()
             res.send(result);
         });
-
 
         app.get('/bookings', async (req, res) => {
             const email = req.query.email;
@@ -107,7 +101,6 @@ async function run() {
             const result = await bookingsCollection.deleteOne(filter);
             res.send(result);
         })
-
 
         app.post('/bookings', async (req, res) => {
             const booking = req.body;
@@ -125,11 +118,6 @@ async function run() {
             res.send(result);
 
         });
-
-
-      
-
-
         // post users
 
         app.get('/jwt', async (req, res) => {
@@ -143,14 +131,11 @@ async function run() {
             res.status(403).send({ accessToken: '' })
         });
 
-
         app.get('/users', async (req, res) => {
-
             const query = {};
             const users = await usersCollection.find(query).toArray();
             res.send(users);
         });
-
 
         // admin check kori
         app.get('/users/admin/:email', async (req, res) => {
@@ -190,7 +175,6 @@ async function run() {
             res.send(users);
         })
 
-
         app.post('/users', async (req, res) => {
             const user = req.body;
             console.log(user);
@@ -214,10 +198,7 @@ async function run() {
             }
             const result = await usersCollection.updateOne(filter, updatedDoc, options)
             res.send(result)
-
         })
-
-
 
         app.put('/users/seller/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
@@ -257,7 +238,7 @@ async function run() {
             const result = await itemsCollection.insertOne(item);
             res.send(result);
             console.log(result)
-        });
+        })
 
         app.delete('/addItems/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
@@ -265,8 +246,6 @@ async function run() {
             const result = await itemsCollection.deleteOne(filter);
             res.send(result);
         })
-
-
         app.put('/addItems/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) }
@@ -279,48 +258,75 @@ async function run() {
             const result = await itemsCollection.updateOne(filter, updatedDoc, options);
             res.send(result);
         });
-
-
-        app.get('/advertised',  async (req, res) => {
+        app.get('/advertised', async (req, res) => {
             const query = {
                 advertise: 'advertised'
             };
             const result = await itemsCollection.find(query).toArray();
             res.send(result);
         })
-
-
         // add to wishlist
-        app.get('/wishlist', async (req, res) => {
+        // app.get('/wishlist', async (req, res) => {
+        //     const email = req.query.email;
+        //     const query = {
+        //         email: email
+        //     };
+        //     const bookings = await wishList.find(query).toArray();
+        //     res.send(bookings);
+        //     console.log(bookings)
+
+        // })
+
+        app.get('/wishlist' , async(req, res) => {
             const email = req.query.email;
-            const query = {
-                email: email
-            };
-            const bookings = await wishList.find(query).toArray();
-            res.send(bookings);
-            console.log(bookings)
-        
+            const query = { email : email};
+            const result = await wishList.find(query).toArray();
+            res.send(result);
         })
-        app.post('/wishList', async (req, res) => {
-            const wishlist = req.body;
-            
+
+        // app.post('/wishList', async (req, res) => {
+        //     const wishlist = req.body;
+
+        //     const query = {
+        //         itemName: wishlist.itemName,
+        //         email: wishlist.email,
+        //     }
+        //     const alreadyBooked = await wishList.find(query).toArray();
+        //     if (alreadyBooked.length) {
+        //         const message = `You already have wishlisted ${wishlist.itemName}`
+        //         return res.send({ acknowledged: false, message })
+        //     }
+        //     const result = await wishList.insertOne(wishlist);
+        //     res.send(result);
+        //     console.log(result)
+        // });
+
+        app.post('/wishlist' , async(req, res) => {
+            const wishlist = req.body ;
             const query = {
                 itemName: wishlist.itemName,
-                email: wishlist.email,
+                email: wishlist.email
             }
-            const alreadyBooked = await wishList.find(query).toArray();
-            if (alreadyBooked.length) {
-                const message = `You already have wishlisted ${wishlist.itemName}`
-                return res.send({ acknowledged: false, message })
+            const alreadyOrdered = await wishList.find(query).toArray();
+            if(alreadyOrdered.length) {
+                const message = `You have already added ${wishlist.itemName} to your wish list!` ;
+                return res.send({acknowledged: false, message})
             }
             const result = await wishList.insertOne(wishlist);
             res.send(result);
-            console.log(result)
-        });
+        })
 
-        app.delete('/wishList/:id', async (req, res) => {
+
+        // app.delete('/wishList/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const filter = { _id: ObjectId(id) };
+        //     const result = await wishList.deleteOne(filter);
+        //     res.send(result);
+        // })
+
+        app.delete('/wishList/:id' , async(req, res) => {
             const id = req.params.id;
-            const filter = { _id: ObjectId(id) };
+            const filter = {_id: ObjectId(id)}
             const result = await wishList.deleteOne(filter);
             res.send(result);
         })
@@ -330,5 +336,4 @@ async function run() {
 
     }
 }
-
 run().catch(console.log)
